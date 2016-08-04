@@ -127,6 +127,11 @@ class UserAuth extends model
         return false;
     }
 
+    public function getSessionUser()
+    {
+        return $this->user;
+    }
+
     public function checkPostRights($Page)
     {
         if (!$this->isLoggedIn())
@@ -138,7 +143,7 @@ class UserAuth extends model
             return true;
 
         // FIXME: magic ints
-        if (!$this->isLoggedIn() || (($user->getType() & STUDENT) != 0) && ((date("Y") > $user->endYear || (date("Y") == $this->user->endYear && date("m") >= 7)))) {
+        if (!$this->isLoggedIn() || (($user->getType() & STUDENT) != 0) && ((date("Y") > $user->getEndYear() || (date("Y") == $this->user->getEndYear() && date("m") >= 7)))) {
             return false;
         }
 

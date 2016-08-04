@@ -21,6 +21,9 @@ class User
 
     public static function from($data)
     {
+        if (empty($data)) {
+            return null;
+        }
         $user = (new User())
             ->setId($data['UserId'])
             ->setName($data['Name'])

@@ -2,6 +2,7 @@
 namespace yapf;
 
 
+use app\UserAuth;
 use yapf\helper\Security;
 
 class View
@@ -25,47 +26,16 @@ class View
      * @var string
      */
     private $buffer;
+    protected $userManager = null;
+
+    public function __construct(UserAuth $userManger = null)
+    {
+        $this->userManager = isset($userManger) ? $userManger : new  UserAuth();
+    }
 
     public function setData(array $viewBag)
     {
         $this->viewBag = $viewBag;
-    }
-
-    private function layout($view_name, $controller = '')
-    {
-        $this->setTemplate($view_name, $controller);
-    }
-
-    public function setTemplate($view_name, $controller_name = '')
-    {
-        if (empty($view_name)) {
-            $this->templatePath = '';
-        } else {
-            $this->templatePath = $this->resolvePath($view_name, $controller_name);
-        }
-    }
-
-    private function resolvePath($view_name, $controller_name = '')
-    {
-        $extension = Config::getInstance()->getViewExtension();
-
-        $search_path = [];
-        # this one with controller name MUST be first
-        # 1. direct controller/method.ext
-        if (!empty($controller_name))
-            $search_path[] = app_view . $controller_name . DS . $view_name . $extension;
-        # 2. directly view/$view_name.exe
-        $search_path[] = app_view . str_replace('/', DIRECTORY_SEPARATOR, ltrim($view_name, '/')) . $extension;
-        # 3. _shared/method.ext
-        $search_path[] = app_view . '_shared' . DS . $view_name . $extension;
-
-        foreach ($search_path as $view_filename) {
-            if (file_exists($view_filename)) {
-                return $view_filename;
-            }
-        }
-        throw new ViewRendererException("No view found for [$controller_name] view: [$view_name]. searched locations:"
-            . implode(';', $search_path));
     }
 
     public function render()
@@ -152,7 +122,7 @@ class View
      */
     protected function editorFor($name, $value, $attrib = [])
     {
-        $attrib['type'] = 'text';
+        $attrib['type'] = isset($attrib['type']) ? $attrib['type'] : 'text';
         $attrib['name'] = $name;
         $attrib['value'] = $value;
         static::createHtmlElement('input', '', $attrib);
@@ -188,5 +158,42 @@ class View
         foreach ($this->validationErrors as $error) {
             static::createHtmlElement('span', $error, $attrib);
         }
+    }
+
+    private function layout($view_name, $controller = '')
+    {
+        $this->setTemplate($view_name, $controller);
+    }
+
+    public function setTemplate($view_name, $controller_name = '')
+    {
+        if (empty($view_name)) {
+            $this->templatePath = '';
+        } else {
+            $this->templatePath = $this->resolvePath($view_name, $controller_name);
+        }
+    }
+
+    private function resolvePath($view_name, $controller_name = '')
+    {
+        $extension = Config::getInstance67()->getViewExtension();
+
+        $search_path = [];
+        # this one with controller name MUST be first
+        # 1. direct controller/method.ext
+        if (!empty($controller_name))
+            $search_path[] = app_view . $controller_name . DS . $view_name . $extension;
+        # 2. directly view/$view_name.exe
+        $search_path[] = app_view . str_replace('/', DIRECTORY_SEPARATOR, ltrim($view_name, '/')) . $extension;
+        # 3. _shared/method.ext
+        $search_path[] = app_view . '_shared' . DS . $view_name . $extension;
+
+        foreach ($search_path as $view_filename) {
+            if (file_exists($view_filename)) {
+                return $view_filename;
+            }
+        }
+        throw new ViewRendererException("No view found for [$controller_name] view: [$view_name]. searched locations:"
+            . implode(';', $search_path));
     }
 }

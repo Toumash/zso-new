@@ -3,6 +3,7 @@
 namespace app\helper;
 
 
+use app\UserAuth;
 use yapf\View;
 
 class Html
@@ -94,11 +95,11 @@ class Html
     //Dodatkowo strona edycji będzie umożliwiała edycję tagów ($Tags), Zdjęcia ($Picture) o rozmiarach $Width x $Height, Tytułu ($Title), Głównej treści (Content)
     //jeżeli wartości tych argumentów będą true.
     //Dodatkowo, jeżeli parametry $Width lub $Height są równe 0, to zdjęcie może być dowolnych rozmiarów.
-    public static function dropEdit(UserAuth $user, $Section, $Id, $Tags = true, $Picture = true, $Title = true, $Content = true, $Width = 0, $Height = 0, $pathToRoot = ".", $nextPage = "index.php")
+    public static function dropEdit(UserAuth $user, $Section, $Id, $Tags = true, $Picture = true, $Title = true, $Content = true, $Width = 0, $Height = 0, $nextPage = "index.php")
     {
         if (!$user->checkPostRights($Section))
             return;
-        echo '<form action="' . $pathToRoot . '/editPost.php?Next=' . $nextPage . '" method="post">
+        echo '<form action="'. wwwroot. 'editPost.php?Next=' . $nextPage . '" method="post">
             <input type="hidden" name="Id" value="' . $Id . '">';
         if ($Tags)
             echo '<input type="hidden" name="Tags" value="true">';
