@@ -18,16 +18,6 @@ use @ (at) to provide your own regex
  */
 function app_map_routes(yapf\plugin\AltoRouter $router)
 {
-    # routes are executed in mappings order - place the most specific FIRST
-    # @example is the controller for the route, you MUST specify action in the url
-    # to not interfere with other mappings
-    $router->map('GET|POST|DELETE', '/subdirectory/whatever/[a:action]/[i:id]?', '@example');
-
-    # example is the controller name
-    # selfCheck is the method name
-    $router->map('GET|POST|DELETE', '/RoutingCheck', 'example#selfCheck');
-    $router->map('GET|POST|DELETE', '/RoutingCheck/[i:id]?/[a:name]?', 'example#selfCheck');
-
     # routes are executed in mappings order - place the most generic at the END
     # default route. Usually will suffice, so don't remove unless you know what are you doing
     $router->map('GET|POST|DELETE', '/[a:controller]/[a:action]?/[a:id]?', null);
