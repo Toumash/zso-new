@@ -20,7 +20,12 @@ abstract class controller
      */
     protected $viewBag = [];
 
-    public function setRequestData(Request $rq)
+    public function __construct()
+    {
+
+    }
+
+    public function setRequest(Request $rq)
     {
         $this->request = $rq;
     }
@@ -42,6 +47,7 @@ abstract class controller
         $view->setTemplate($view_name, $this->getControllerName());
         $view->setData($this->viewBag);
         $view->setErrors($this->validationErrors);
+        $view->setRequest($this->request);
 
         $view->render();
     }
@@ -133,8 +139,8 @@ abstract class controller
         } else {
             $host = $_SERVER['HTTP_HOST'];
             $location = ltrim($location, '/');
-            $base = Config::getInstance()->getBasePath();
-            $base = empty($base)?'':$base.'/';
+            $base = ltrim(Config::getInstance()->getBasePath(), '/');
+            $base = empty($base) ? '' : "$base/";
             header("Location: http://$host/$base$location", true, 302);
         }
         return true;
@@ -142,6 +148,15 @@ abstract class controller
 
     protected function validateAntiForgeryToken(Request $rq)
     {
-        return $_SESSION['form_key'] == $rq->post('form_key', '', false);
+        $postKey = $rq->post('form_key', '', false);
+        if (!isset($_SESSION['form_keys'])) {
+            $_SESSION['form_keys'] = [];
+        }
+        foreach ($_SESSION['form_keys'] as $key) {
+            if ($key == $postKey) {
+                return true;
+            }
+        }
+        return false;
     }
 }

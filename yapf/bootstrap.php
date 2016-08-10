@@ -10,6 +10,7 @@ define('app_model', app . 'model' . DS);
 define('app_plugin', app . 'plugin' . DS);
 define('app_log', app . 'log' . DS);
 
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__DIR__));
 # generic error pages for production
 function show404()
 {
@@ -57,7 +58,6 @@ if ($cfg->isDebug()) {
 } else {
     ini_set('display_errors', 'Off');
 }
-
 /**
  * @param $params array containing  action, controller, and params keys
  * $params = [
@@ -67,7 +67,7 @@ if ($cfg->isDebug()) {
  * ]
  * @throws BadRouteException
  */
-function standard_route($controller, $action = 'index', $params = [])
+function standard_route($controller, $action = 'index', $params = [], $url)
 {
     $controllerClass = "\\app\\controller\\" . $controller . "_controller";
 
@@ -82,7 +82,8 @@ function standard_route($controller, $action = 'index', $params = [])
             $rq = \yapf\Request::standard($params);
             $rq->setController($controller);
             $rq->setAction($action);
-            $obj->setRequestData($rq);
+            $rq->setUrl($url);
+            $obj->setRequest($rq);
             $obj->$action($rq);
         } else {
             show404();
@@ -102,9 +103,9 @@ $basePath = $cfg->getBasePath();
 $router->setBasePath($basePath);
 
 # default route/index page
-$router->map('GET', '/', function () {
+$router->map('GET', '', function () {
     $controller = Config::getInstance()->getDefaultController();
-    standard_route($controller, 'index', []);
+    standard_route($controller, 'index', [], '');
 });
 
 # user configured routes
@@ -119,7 +120,7 @@ $match = $router->match($requestUrl);
 if ($match === false) {
     # route not found
     show404();
-    return;
+    throw new BadRouteException("No route found for: $requestUrl");
 }
 session_start();
 # runs the closures from the routes array
@@ -127,18 +128,18 @@ if (empty($match['target'])) {
     $params = $match['params'];
     $controller = $params['controller'];
     $action = isset($params['action']) ? $params['action'] : 'index';
-    standard_route($controller, $action, $params);
+    standard_route($controller, $action, $params, $requestUrl);
 } elseif (is_callable($match['target'])) {
     $match['target']($match['params']);
 } elseif (($pos = strpos($match['target'], '#')) !== false) {
     $controller = substr($match['target'], 0, $pos);
     $action = substr($match['target'], $pos + 1);
-    standard_route($controller, $action, $match['params']);
+    standard_route($controller, $action, $match['params'], $requestUrl);
 } elseif ($match['target'][0] === '@') {
     $controller = substr($match['target'], 1);
     $match['params']['controller'] = $controller;
     $action = $match['params']['action'];
-    standard_route($controller, $action, $match['params']);
+    standard_route($controller, $action, $match['params'], $requestUrl);
 } else {
     show500();
     throw new BadRouteException("No function to call, check your routes.php file");

@@ -8,7 +8,7 @@ $posts = $postModel->getHomePosts();
 /**
  * @var $auth \app\UserAuth
  */
-$auth = $this->user;
+$auth = $this->userManager;
 ?>
 
 <div id="students_photo">
@@ -153,7 +153,7 @@ $auth = $this->user;
     </div>
 </div>
 <?php
-if (!checkPostRights(LAYOUT_PAGE))
+if (!$auth->checkRights(LAYOUT_PAGE))
     echo "<div style='height:200px;'></div>";
 else
     echo "<div style='height:224px;'></div>";

@@ -73,6 +73,4 @@ class example_controller extends \yapf\controller
     {
         return $this->content('hurray!');
     }
-
-
 }

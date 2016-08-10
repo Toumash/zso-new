@@ -25,6 +25,7 @@ class Request
      * @var string
      */
     private $action;
+    private $url;
 
     public function __construct(array $routeParams, array $get, array $post)
     {
@@ -40,6 +41,22 @@ class Request
     public static function standard(array $params)
     {
         return new Request($params, $_GET, $_POST);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param mixed $url
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
     }
 
     /**

@@ -1,0 +1,67 @@
+.error
+{
+    color: Crimson;
+}
+
+.success
+{
+    color: LightGreen;
+}
+
+.adminTableHeader
+{
+    height: 50px;
+    width: 150px;
+    border-style: solid;
+    border-width:1px;
+    font-size: 160%;
+    padding: 8px;
+}
+
+.adminTableCell
+{
+    height: 50px;
+    width: 150px;
+    border-style: solid;
+    border-width:1px;
+}
+
+.adminTableCellFocus
+{
+    height: 50px;
+    width: 150px;
+    border-style: solid;
+    border-width:1px;
+    color: LightCoral;
+}
+
+.adminTableCellFocusedFocus
+{
+    height: 50px;
+    width: 150px;
+    border-style: solid;
+    border-width:1px;
+    color: Red;
+}
+
+.lightBackground
+{
+    color: black
+}
+
+.lightBackground a
+{
+    color: black
+}
+
+.in_editor_dropdown::first-line
+{
+    text-decoration: underline;
+}
+
+.in_editor_dropdown
+{
+    border-style: dotted;
+    border-width: 1px;
+    text-decoration: none;
+}

@@ -16,6 +16,7 @@ namespace app;
 
 //Stałe nie powinny przekroczyć wartości 2147483647 lub 0x7FFFFFFF aby uniknąc kłopotów z reprezentacją liczb.
 
+use app\model\User;
 use PDO;
 use yapf\model;
 
@@ -103,8 +104,8 @@ class UserAuth extends model
         } else {
             $this->db = $this->getDatabaseConnection();
         }
-        if (isset($_SESSION['user'])) {
-            $this->user = $_SESSION['user'];
+        if (isset($_SESSION['_user'])) {
+            $this->user = $_SESSION['_user'];
         }
     }
 
@@ -122,6 +123,7 @@ class UserAuth extends model
         $query_data = $q->fetch(PDO::FETCH_ASSOC);
         if (count($query_data) > 0 && password_verify($password, $query_data['Password']) == true) {
             $this->user = User::from($query_data);
+            $_SESSION['_user'] = $this->user;
             return true;
         }
         return false;
@@ -231,7 +233,7 @@ class UserAuth extends model
         }
     }
 
-    private function isLoggedIn()
+    public function isLoggedIn()
     {
         return isset($this->user);
     }

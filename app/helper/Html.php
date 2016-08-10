@@ -15,12 +15,12 @@ class Html
     {
         View::createHtmlElement('a', 'click here', ['href' => $href]);
     }
+    //Funkcja wspomagająca dla funkcji bbcode_to_html().
+    //Tworzy dropdown-menu z bbcode.
 
-    //Źródło oryginalnej funkcji: http://stackoverflow.com/questions/23247662/wysibb-text-editor-uses-tag-instead-of-tag
     public static function bbcode_decode($bbtext)
     {
-        $bbtext = makeDropdownMenus($bbtext);
-        $bbtext = makeClassNumbers($bbtext);
+        $bbtext = static::makeDropdownMenus($bbtext);
 
         $bbextended = array
         (
@@ -91,15 +91,66 @@ class Html
         return $bbtext;
     }
 
+    //Źródło oryginalnej funkcji: http://stackoverflow.com/questions/23247662/wysibb-text-editor-uses-tag-instead-of-tag
+
+    private static function makeDropdownMenus($text)
+    {
+        $begin = stripos($text, "[dropdown]");
+        $end = stripos($text, "[/dropdown]");
+        while ($begin !== false && $end !== false) {
+            //if there is only header
+            if (stripos(substr($text, $begin, $end - $begin), "[br /]") == 0) {
+                $text = substr_replace($text, "<li>", $begin, 0);
+                $end += 4;
+                $text = substr_replace($text, "</li>", $end, 0);
+            } else {
+                $text = substr_replace($text, "<li>", $begin, 0);
+                $end += 4;
+                $text = substr_replace($text, "</li></ul></li>", $end, 0);
+
+                $br = stripos($text, "[br /]", $begin);
+                if ($br === false)
+                    $br = $end;
+                $text = substr_replace($text, "<ul><li>", $br, -(strlen($text) - ($br + 6)));
+                $end += 2;
+
+                $br = stripos($text, "[br /]", $begin);
+                while ($br !== false) {
+                    if ($br >= $end)
+                        break;
+                    if ($br >= $begin) {
+                        $text = substr_replace($text, "</li><li>", $br, -(strlen($text) - ($br + 6)));
+                        $end += 3;
+                    }
+                    $br = stripos($text, "[br /]", $begin);
+                }
+            }
+
+            $text = static::str_replace_first("[dropdown]", "", $text);
+            $text = static::str_replace_first("[/dropdown]", "", $text);
+            $begin = stripos($text, "[dropdown]");
+            $end = stripos($text, "[/dropdown]");
+        }
+        return $text;
+    }
+
+    //Źródło funkcji: http://stackoverflow.com/questions/1252693/using-str-replace-so-that-it-only-acts-on-the-first-match
+    //Podmienia poerwsze wystompienie $from w $dubiect na $to.
+    private static function str_replace_first($from, $to, $subject)
+    {
+        $from = '/'.preg_quote($from, '/').'/';
+        return preg_replace($from, $to, $subject, 1);
+    }
     //Wyświetla przycisk edycji o wielkości $Size pikseli, jeżeli użytkownik ma prawo do edycji posta w sekcji $Section.
     //Dodatkowo strona edycji będzie umożliwiała edycję tagów ($Tags), Zdjęcia ($Picture) o rozmiarach $Width x $Height, Tytułu ($Title), Głównej treści (Content)
     //jeżeli wartości tych argumentów będą true.
     //Dodatkowo, jeżeli parametry $Width lub $Height są równe 0, to zdjęcie może być dowolnych rozmiarów.
+
     public static function dropEdit(UserAuth $user, $Section, $Id, $Tags = true, $Picture = true, $Title = true, $Content = true, $Width = 0, $Height = 0, $nextPage = "index.php")
     {
         if (!$user->checkPostRights($Section))
             return;
-        echo '<form action="'. wwwroot. 'editPost.php?Next=' . $nextPage . '" method="post">
+        echo '<form action="' . wwwroot . 'editPost.php?Next=' . $nextPage . '" method="post">
             <input type="hidden" name="Id" value="' . $Id . '">';
         if ($Tags)
             echo '<input type="hidden" name="Tags" value="true">';

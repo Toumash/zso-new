@@ -10,27 +10,46 @@ class View
     /**
      * @var array
      */
-    private $viewBag = [];
+    public $viewBag = [];
     /**
      * @var array
      */
-    private $validationErrors = [];
+    public $validationErrors = [];
+    public $userManager = null;
+    /**
+     * @var Request
+     */
+    public $request;
     /**
      * @var string
      */
     private $templatePath;
-
     /** @var array */
     private $sections = [];
     /**
      * @var string
      */
     private $buffer;
-    protected $userManager = null;
 
     public function __construct(UserAuth $userManger = null)
     {
         $this->userManager = isset($userManger) ? $userManger : new  UserAuth();
+    }
+
+    /**
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param mixed $request
+     */
+    public function setRequest($request)
+    {
+        $this->request = $request;
     }
 
     public function setData(array $viewBag)
@@ -56,17 +75,17 @@ class View
         $this->validationErrors = $errors;
     }
 
-    protected function renderBody()
+    public function renderBody()
     {
         echo $this->buffer;
     }
 
-    protected function startSection()
+    public function startSection()
     {
         ob_start();
     }
 
-    protected function endSection($name)
+    public function endSection($name)
     {
         if (!isset($this->sections[$name])) {
             $this->sections[$name] = [];
@@ -74,14 +93,17 @@ class View
         $this->sections[$name][] = ob_get_clean();
     }
 
-    protected function antiForgeryToken()
+    public function antiForgeryToken()
     {
         $token = Security::generateAntiForgeryToken();
-        $_SESSION['form_key'] = $token;
+        if (!isset($_SESSION['form_keys'])) {
+            $_SESSION['form_keys'] = [];
+        }
+        $_SESSION['form_keys'][] = $token;
         echo "<input type='hidden' name='form_key' value='$token'/>";
     }
 
-    protected function renderSection($name, $required = false)
+    public function renderSection($name, $required = false)
     {
         if (isset($this->sections[$name])) {
             foreach ($this->sections[$name] as $part) {
@@ -99,7 +121,7 @@ class View
      * @param string $text the label for the element
      * @param array $attrib html attributes for label
      */
-    protected function labelFor($name, $text, array $attrib = [])
+    public function labelFor($name, $text, array $attrib = [])
     {
         $attrib['for'] = $name;
         static::createHtmlElement('label', $text, $attrib);
@@ -120,7 +142,7 @@ class View
      * @param string $value
      * @param array $attrib html attributes for input
      */
-    protected function editorFor($name, $value, $attrib = [])
+    public function editorFor($name, $value, $attrib = [])
     {
         $attrib['type'] = isset($attrib['type']) ? $attrib['type'] : 'text';
         $attrib['name'] = $name;
@@ -134,7 +156,7 @@ class View
      * @param string $message if you specify message, its gonna replace that one from controller
      * @param array $attrib
      */
-    protected function validationMessageFor($name, $message = '', $attrib = [])
+    public function validationMessageFor($name, $message = '', $attrib = [])
     {
         if (isset($this->validationErrors[$name])) {
             $message = empty($message) ? $this->validationErrors[$name] : $message;
@@ -147,7 +169,7 @@ class View
      * @param string $message additional message
      * @param array $attrib html attributes for message
      */
-    protected function validationSummary($message = '', array $attrib = [])
+    public function validationSummary($message = '', array $attrib = [])
     {
         # message
         if (!empty($message)) {
@@ -160,7 +182,7 @@ class View
         }
     }
 
-    private function layout($view_name, $controller = '')
+    public function layout($view_name, $controller = '')
     {
         $this->setTemplate($view_name, $controller);
     }
@@ -174,9 +196,9 @@ class View
         }
     }
 
-    private function resolvePath($view_name, $controller_name = '')
+    public function resolvePath($view_name, $controller_name = '')
     {
-        $extension = Config::getInstance67()->getViewExtension();
+        $extension = Config::getInstance()->getViewExtension();
 
         $search_path = [];
         # this one with controller name MUST be first

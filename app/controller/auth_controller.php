@@ -22,10 +22,22 @@ class auth_controller extends authorized_controller
                 $this->validationErrors['login'] = 'Niepoprawny login i/lub hasło';
             }
             if ($this->isModelValid()) {
-                $this->redirect(Config::getInstance()->getDefaultController());
+                $returnUrl = $rq->post('returnUrl', '');
+                if (empty($returnUrl)) {
+                    return $this->redirect(Config::getInstance()->getDefaultController());
+                }
+                return $this->redirect($returnUrl);
             }
+            $this->viewBag['returnUrl'] = $rq->post('returnUrl', '');
             return $this->view();
         }
         return $this->view();
+    }
+
+    public function logout(Request $rq)
+    {
+        session_unset();
+        unset($_SESSION['_user']);
+        return $this->redirect('');
     }
 }
