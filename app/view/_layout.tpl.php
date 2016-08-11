@@ -31,9 +31,9 @@ $view = $this;
     $headerGim = $headerPosts->fetch();
     $headerLic = $headerPosts->fetch();
     /**
-     * @var $auth \app\UserAuth
+     * @var $user \app\UserAuth
      */
-    $auth = $view->userManager;
+    $user = $view->userManager;
     if (!is_null($msg = TempData::get('error-message'))): //TODO extend
         ?>
         <div class="alert alert-info">
@@ -56,7 +56,7 @@ $view = $this;
                  class="naglowek_pom czcionka_szara">
                 <?php echo Html::bbcode_decode($headerGim['Content']); ?>
                 <div style="position: absolute; top: 0; right: 0;">
-                    <?php Html::dropEdit($auth, LAYOUT_PAGE, 26, false, false, true, true, 0, 0); ?>
+                    <?php Html::dropEdit($user, LAYOUT_PAGE, 26, false, false, true, true, 0, 0); ?>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@ $view = $this;
                  class="naglowek_pom czcionka_szara">
                 <?php echo Html::bbcode_decode($headerLic['Content']); ?>
                 <div style="position: absolute; top: 0; right: 0;">
-                    <?php Html::dropEdit($auth, LAYOUT_PAGE, 27, false, false, true, true, 0, 0); ?>
+                    <?php Html::dropEdit($user, LAYOUT_PAGE, 27, false, false, true, true, 0, 0); ?>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@ $view = $this;
                 <?php echo Html::bbcode_decode($headerMenu['Content']); ?>
             </ol>
             <div style="position: absolute; top: 0; right: 0;">
-                <?php Html::dropEdit($auth, LAYOUT_PAGE, 25, false, false, false, true, 0, 0); ?>
+                <?php Html::dropEdit($user, LAYOUT_PAGE, 25, false, false, false, true, 0, 0); ?>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@ $view = $this;
             echo Html::bbcode_decode($footer['Content']);
             $footer = $posts->fetch();
             echo '<div style="float:left; margin-left: 5px; position: relative;">';
-            Html::dropEdit($auth, LAYOUT_PAGE, 22, false, false, false, true, 0, 0);
+            Html::dropEdit($user, LAYOUT_PAGE, 22, false, false, false, true, 0, 0);
             ?>
         </div>
         <div style="clear:both;"></div>
@@ -116,7 +116,7 @@ $view = $this;
     </div>
     <div style="float:left;margin-left: 5px position: relative;">
         <?php
-        Html::dropEdit($auth, LAYOUT_PAGE, 23, false, false, false, true, 0, 0);
+        Html::dropEdit($user, LAYOUT_PAGE, 23, false, false, false, true, 0, 0);
         $footer = $posts->fetch();
         ?>
     </div>
@@ -125,33 +125,33 @@ $view = $this;
     </div>
     <div style="float:left;margin-left: 5px">
         <?php
-        Html::dropEdit($auth, LAYOUT_PAGE, 24, false, false, false, true, 0, 0);
+        Html::dropEdit($user, LAYOUT_PAGE, 24, false, false, false, true, 0, 0);
         ?>
     </div>
 </div>
 
 <div id="logowanie" class="czcionka_szara">
     <?php
-    if (!$auth->isLoggedIn()):?>
-        <form action="<?php echo wwwroot; ?>auth/login?returnUrl=<?php echo $view->getRequest()->getUrl(); ?>"
+    if (!$user->isLoggedIn()):?>
+        <form action="<?php echo wwwroot; ?>user/login?returnUrl=<?php echo $view->getRequest()->getUrl(); ?>"
               method="post">
             <?php $view->antiForgeryToken(); ?>
             <label>Email<br/><input name="login"/></label><br/>
             <label>Hasło:<br/><input type="password" name="password"/></label><br/>
             <input type="submit" value="Zaloguj">
         </form>
-        <a href="<?php echo wwwroot; ?>auth/register">Załóż konto</a>
+        <a href="<?php echo wwwroot; ?>user/register">Załóż konto</a>
         <?php
     else:
         // show management panel
         ?>
-        <form action="<?php echo wwwroot; ?>auth/logout" method="post">
+        <form action="<?php echo wwwroot; ?>user/logout" method="post">
             <br/><input type="submit" value="Wyloguj się"><br/>
         </form>
         <form action="<?php echo wwwroot; ?>user/manage">
             <br/><input type="submit" value="Zarządzaj kontem"><br/>
         </form>
-        <?php if ($auth->checkRights(SET_RIGHTS_RIGHT | VERIFY_TEACHER_RIGHT | CHANGE_USER_DATA_RIGHT) != 0) {
+        <?php if ($user->checkRights(SET_RIGHTS_RIGHT | VERIFY_TEACHER_RIGHT | CHANGE_USER_DATA_RIGHT) != 0) {
         echo '<form action="' . wwwroot . 'adminPanel.php">
                         <br /><input type="submit" value="Panel administracyjny"><br />
                     </form>';

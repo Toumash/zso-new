@@ -248,4 +248,65 @@ class UserAuth extends model
 
         return $this->user->isAdmin() || ($this->user->getRights() & $Rights);
     }
+
+    public function emailExists($email)
+    {
+        $q = $this->db->prepare("SELECT COUNT(*) as Count FROM users WHERE Email=:email");
+        $q->bindParam(':email', $email, PDO::PARAM_STR);
+        $q->execute();
+        $data = $q->fetch(PDO::FETCH_ASSOC);
+        $count = $data['Count'];
+        return $count != 0;
+    }
+
+    public function register($email, $password, $optional = [], $confirmationCode = '')
+    {
+        $q = $this->db->prepare("INSERT INPUT users (Name,Surname,Password,Email,Phone,Type,Class,VerificationCode)
+         VALUES (:name,:surname,:password,:email,:phone,:type,:class,:code)");
+        $q->bindParam(':email', $email);
+        $q->bindParam(':password', $password);
+        $q->bindParam(':code', $confirmationCode);
+
+        $q->bindParam(':name', $optional['name']);
+        $q->bindParam(':surname', $optional['surname']);
+        $q->bindParam(':phone', $optional['phone']);
+        $q->bindParam(':type', $optional['type']);
+        $q->bindParam(':class', $optional['class']);
+        $q->execute();
+        return $this->db->lastInsertId();
+    }
+
+    public function sendConfirmationEmail($email, $userId, $Token)
+    {
+        // subject
+        $subject = 'Dziękujemy za rejestrację.';
+
+        // message
+        $message = '
+		<html>
+			<head>
+				<title>Dziękujemy za rejestrację.</title>
+			</head>
+			<body>
+				Aby ukończyć proces rejestracji kliknij w następujący link:
+				<a href=' . domain . wwwroot . 'user/verify?id=' . $userId . '&token=' . $Token . '>LINK</a>
+			</body>
+		</html>
+		';
+
+        // To send HTML mail, the Content-type header must be set
+        $headers = 'MIME-Version: 1.0' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
+
+        // Mail it
+        return mail($email, $subject, $message, $headers);
+    }
+
+    public function verify($id, $token)
+    {
+        $stmt = $this->db->query("UPDATE users SET Verified=Verified|" . EMAIL_VERIFIED . ", VerificationCode='' WHERE UserId=:id AND VerificationCode=:token");
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':token', $token);
+        $stmt->execute();
+    }
 }

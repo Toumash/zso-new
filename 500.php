@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>404 Not Found</title>
+    <title>500 Internal Server Error</title>
 </head>
 <body>
 <h1>500 Internal Server Error</h1>

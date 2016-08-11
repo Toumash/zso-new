@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mrtou
- * Date: 04.08.2016
- * Time: 12:00
- */
-
 namespace app\dal;
 
 
@@ -17,9 +10,6 @@ class PostRepository extends model
 {
     private $db;
 
-    /**
-     * PostRepository constructor.
-     */
     public function __construct()
     {
         $this->db = $this->getDatabaseConnection('default');

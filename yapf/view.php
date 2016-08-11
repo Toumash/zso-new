@@ -160,6 +160,7 @@ class View
     {
         if (isset($this->validationErrors[$name])) {
             $message = empty($message) ? $this->validationErrors[$name] : $message;
+            $attrib['id'] = "$name-err";
             static::createHtmlElement('span', $message, $attrib);
         }
     }
